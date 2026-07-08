@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ПаркСнаб — B2B каталог оборудования для ДРЦ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --panel:#EDEFF3;
+    --ink:#1B3A5C;
+    --steel:#232B38;
+    --cyan:#3E92CC;
+    --amber:#F2A93B;
+    --alert:#E4572E;
+    --graphite:#4A4F58;
+    --line:#c9d2de;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+
+  .eyebrow{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:2.5px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--cyan);
+  }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+
+  /* ---------- NAV ---------- */
+  header{
+    background:var(--steel);
+    color:#fff;
+    padding:16px 5%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:3px solid var(--amber);
+  }
+  .logo{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:0.5px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo .mark{
+    width:10px; height:10px;
+    background:var(--amber);
+    display:inline-block;
+    transform:rotate(45deg);
+  }
+  nav ul{
+    display:flex;
+    gap:28px;
+    list-style:none;
+  }
+  nav a{
+    font-family:'Oswald', sans-serif;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#cdd6e3;
+    font-weight:500;
+  }
+  nav a:hover{ color:var(--amber); }
+  .nav-cta{
+    background:var(--amber);
+    color:var(--steel);
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    font-size:12.5px;
+    letter-spacing:1px;
+    padding:9px 16px;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative;
+    padding:70px 5% 40px 5%;
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:40px;
+    align-items:center;
+    background:
+      linear-gradient(var(--paper), var(--paper)),
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(27,58,92,0.045) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(27,58,92,0.045) 28px);
+  }
+  .hero-copy .eyebrow{ margin-bottom:14px; display:block; }
+  .hero h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:44px;
+    font-weight:700;
+    line-height:1.12;
+    color:var(--steel);
+    max-width:560px;
+  }
+  .hero h1 em{
+    font-style:normal;
+    color:var(--cyan);
+    text-decoration:underline;
+    text-decoration-color:var(--amber);
+    text-decoration-thickness:3px;
+    text-underline-offset:6px;
+  }
+  .hero p.lead{
+    margin-top:18px;
+    font-size:16px;
+    color:var(--graphite);
+    max-width:480px;
+    line-height:1.6;
+  }
+  .hero-actions{
+    margin-top:30px;
+    display:flex;
+    gap:14px;
+  }
+  .btn-primary{
+    background:var(--ink);
+    color:#fff;
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    letter-spacing:1px;
+    font-size:13px;
+    padding:14px 24px;
+  }
+  .btn-secondary{
+    border:1.5px solid var(--ink);
+    color:var(--ink);
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    letter-spacing:1px;
+    font-size:13px;
+    padding:13px 24px;
+  }
+
+  /* dimension line stat row */
+  .dim-stats{
+    display:flex;
+    gap:0;
+    margin-top:44px;
+    max-width:520px;
+  }
+  .dim-stat{
+    flex:1;
+    position:relative;
+    padding-top:18px;
+    text-align:left;
+  }
+  .dim-stat::before{
+    content:"";
+    position:absolute;
+    top:0; left:0; right:10px;
+    height:1px;
+    background:var(--cyan);
+  }
+  .dim-stat::after{
+    content:"◄";
+    position:absolute;
+    top:-6px; left:-2px;
+    font-size:9px;
+    color:var(--cyan);
+  }
+  .dim-stat .num{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:26px;
+    color:var(--ink);
+  }
+  .dim-stat .lbl{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--graphite);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+
+  /* ---------- HERO CALCULATOR (HOOK) ---------- */
+  .calc-wrap{
+    background:var(--ink);
+    border-radius:4px;
+    padding:22px 24px 24px 24px;
+    position:relative;
+    color:#fff;
+  }
+  .calc-wrap .cap{
+    font-family:'IBM Plex Mono', monospace;
+    color:#8fb3d6;
+    font-size:10.5px;
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:16px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .calc-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:19px;
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  .calc-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#8fb3d6;
+    margin-bottom:18px;
+  }
+  .calc-block-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:#8fb3d6;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin-bottom:8px;
+    display:block;
+  }
+  .area-pills{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .area-pill{
+    flex:1;
+    text-align:center;
+    padding:9px 6px;
+    border:1px solid #3d5a80;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    color:#cdd6e3;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .area-pill.active{
+    background:var(--amber);
+    border-color:var(--amber);
+    color:var(--steel);
+    font-weight:600;
+  }
+  .cat-checks{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px 14px;
+    margin-bottom:20px;
+  }
+  .cat-check{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:#dbe4f0;
+    cursor:pointer;
+  }
+  .cat-check input{
+    accent-color:var(--amber);
+    width:14px; height:14px;
+    cursor:pointer;
+  }
+  .calc-result{
+    border-top:1px solid #3d5a80;
+    padding-top:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-bottom:16px;
+  }
+  .calc-result .r-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:#8fb3d6;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .calc-result .r-value{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:26px;
+    font-weight:700;
+    color:var(--amber);
+    line-height:1.1;
+  }
+  .calc-cta{
+    width:100%;
+    background:var(--amber);
+    border:none;
+    color:var(--steel);
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    letter-spacing:1px;
+    font-size:13px;
+    padding:13px;
+    cursor:pointer;
+  }
+  .calc-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    color:#7690b0;
+    margin-top:10px;
+    line-height:1.5;
+    text-align:center;
+  }
+
+  /* ---------- SECTION LABEL ---------- */
+  .section{
+    padding:60px 5%;
+  }
+  .section-head{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    margin-bottom:30px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:14px;
+  }
+  .section-head .index-no{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--amber);
+    font-size:14px;
+    font-weight:600;
+  }
+  .section-head h2{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-size:22px;
+    color:var(--steel);
+    font-weight:600;
+  }
+  .section-head .sub{
+    margin-left:auto;
+    font-size:13px;
+    color:var(--graphite);
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  /* ---------- CATALOG INDEX GRID ---------- */
+  .cat-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .cat-card{
+    background:var(--paper);
+    padding:22px 18px;
+    position:relative;
+    transition:background 0.15s ease;
+    min-height:150px;
+    display:flex;
+    flex-direction:column;
+  }
+  .cat-card:hover{ background:var(--panel); }
+  .cat-card .idx{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--cyan);
+    margin-bottom:10px;
+  }
+  .cat-card .icon{
+    width:30px; height:30px;
+    margin-bottom:12px;
+    stroke:var(--ink);
+  }
+  .cat-card h3{
+    font-family:'Oswald', sans-serif;
+    font-size:15px;
+    font-weight:600;
+    color:var(--steel);
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+    margin-bottom:6px;
+  }
+  .cat-card p{
+    font-size:12px;
+    color:var(--graphite);
+    line-height:1.4;
+    margin-top:auto;
+  }
+  .cat-card .count{
+    position:absolute;
+    top:20px; right:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:#9aa5b5;
+  }
+
+  /* ---------- VERIFIED SUPPLIERS ---------- */
+  .sup-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:20px;
+  }
+  .sup-card{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:22px;
+    position:relative;
+    overflow:visible;
+  }
+  .sup-card .row1{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+  }
+  .sup-card h4{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:17px;
+    font-weight:600;
+    color:var(--steel);
+  }
+  .sup-card .region{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--graphite);
+    margin-top:4px;
+  }
+  .sup-card .desc{
+    font-size:13px;
+    color:var(--graphite);
+    margin-top:12px;
+    line-height:1.55;
+  }
+  .sup-card .tags{
+    margin-top:14px;
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .sup-card .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    background:var(--panel);
+    color:var(--graphite);
+    padding:3px 8px;
+  }
+
+  /* stamp */
+  .stamp{
+    position:absolute;
+    top:-14px; right:-10px;
+    width:74px; height:74px;
+    transform:rotate(-14deg);
+  }
+  .stamp svg{ width:100%; height:100%; }
+  .stamp text{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:6.6px;
+    fill:var(--alert);
+    letter-spacing:1px;
+  }
+  .stamp circle{
+    fill:none;
+    stroke:var(--alert);
+  }
+
+  /* ---------- SELLER CTA BAND ---------- */
+  .seller-band{
+    background:var(--steel);
+    color:#fff;
+    padding:56px 5%;
+    display:grid;
+    grid-template-columns:1.3fr 1fr;
+    gap:40px;
+    align-items:center;
+    position:relative;
+  }
+  .seller-band::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(135deg, transparent, transparent 22px, rgba(255,255,255,0.02) 23px);
+    pointer-events:none;
+  }
+  .seller-band .eyebrow{ color:var(--amber); }
+  .seller-band h2{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:30px;
+    font-weight:700;
+    margin-top:10px;
+    line-height:1.2;
+  }
+  .seller-band p{
+    color:#c3cddb;
+    margin-top:12px;
+    max-width:480px;
+    line-height:1.6;
+    font-size:14.5px;
+  }
+  .form-card{
+    background:var(--paper);
+    color:var(--ink);
+    padding:26px;
+    position:relative;
+  }
+  .form-card .fc-title{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-size:13px;
+    letter-spacing:1px;
+    font-weight:600;
+    margin-bottom:16px;
+    display:flex;
+    justify-content:space-between;
+  }
+  .form-card .fc-title .price{
+    color:var(--alert);
+    font-family:'IBM Plex Mono', monospace;
+  }
+  .field{
+    margin-bottom:12px;
+  }
+  .field label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--graphite);
+    display:block;
+    margin-bottom:5px;
+  }
+  .field input{
+    width:100%;
+    border:1px solid var(--line);
+    background:#fff;
+    padding:10px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:13px;
+    color:var(--ink);
+  }
+  .field input:focus{ outline:2px solid var(--cyan); }
+  .form-card button{
+    width:100%;
+    margin-top:6px;
+    background:var(--amber);
+    border:none;
+    color:var(--steel);
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    letter-spacing:1px;
+    font-size:13px;
+    padding:13px;
+    cursor:pointer;
+  }
+  .form-card .fc-note{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:#8b93a3;
+    margin-top:10px;
+    line-height:1.5;
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer{
+    padding:26px 5%;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:#9aa5b5;
+  }
+
+  @media (max-width:860px){
+    .hero{ grid-template-columns:1fr; }
+    .cat-grid{ grid-template-columns:repeat(2,1fr); }
+    .sup-grid{ grid-template-columns:1fr; }
+    .seller-band{ grid-template-columns:1fr; }
+    nav ul{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="mark"></span>ПАРКСНАБ</div>
+  <nav><ul>
+    <li><a href="#catalog">Каталог</a></li>
+    <li><a href="#suppliers">Поставщики</a></li>
+    <li><a href="#solutions">Под ключ</a></li>
+    <li><a href="#guides">Гайды</a></li>
+  </ul></nav>
+  <a class="nav-cta" href="#seller">Стать поставщиком</a>
+</header>
+
+<section class="hero">
+  <div class="hero-copy">
+    <span class="eyebrow">B2B · Оборудование для ДРЦ</span>
+    <h1>Узнайте бюджет запуска своего центра <em>за 2 минуты</em></h1>
+    <p class="lead">Выберите зоны и площадь — увидите вилку цен по 12 категориям оборудования и получите точный расчёт от проверенных поставщиков, а не по десяткам разрозненных сайтов.</p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="#calculator">Рассчитать бюджет ↓</a>
+      <a class="btn-secondary" href="#catalog">Смотреть каталог</a>
+    </div>
+    <div class="dim-stats">
+      <div class="dim-stat"><div class="num">12</div><div class="lbl">Категорий</div></div>
+      <div class="dim-stat"><div class="num">150+</div><div class="lbl">Позиций оборудования</div></div>
+      <div class="dim-stat"><div class="num">ИНН</div><div class="lbl">Автопроверка поставщика</div></div>
+    </div>
+  </div>
+
+  <div class="calc-wrap" id="calculator">
+    <div class="cap"><span>КАЛЬКУЛЯТОР ЗАПУСКА · ПАРКСНАБ</span><span id="calc-count">0 зон</span></div>
+    <div class="calc-title">Сколько стоит открыть свой центр?</div>
+    <div class="calc-sub">Ориентировочный расчёт по выбранным зонам</div>
+
+    <span class="calc-block-label">Площадь помещения</span>
+    <div class="area-pills" id="area-pills">
+      <div class="area-pill" data-mult="0.7">до 200 м²</div>
+      <div class="area-pill active" data-mult="1">200–500 м²</div>
+      <div class="area-pill" data-mult="1.6">500+ м²</div>
+    </div>
+
+    <span class="calc-block-label">Зоны и оборудование</span>
+    <div class="cat-checks" id="cat-checks">
+      <label class="cat-check"><input type="checkbox" data-min="800000" data-max="2200000" checked> Батутная зона</label>
+      <label class="cat-check"><input type="checkbox" data-min="600000" data-max="1500000"> Лазертаг</label>
+      <label class="cat-check"><input type="checkbox" data-min="1200000" data-max="2000000"> Боулинг</label>
+      <label class="cat-check"><input type="checkbox" data-min="400000" data-max="1000000" checked> Аттракционы</label>
+      <label class="cat-check"><input type="checkbox" data-min="250000" data-max="600000"> Надувные конструкции</label>
+      <label class="cat-check"><input type="checkbox" data-min="500000" data-max="1200000"> Игровые комнаты</label>
+      <label class="cat-check"><input type="checkbox" data-min="300000" data-max="900000"> Роботы / интерактив</label>
+      <label class="cat-check"><input type="checkbox" data-min="200000" data-max="500000" checked> Мебель и оснащение</label>
+    </div>
+
+    <div class="calc-result">
+      <div><div class="r-label">Итого, ориентировочно</div><div class="r-value" id="calc-total">1.4 — 3.7 млн ₽</div></div>
+    </div>
+    <button class="calc-cta" id="calc-cta">Получить точный расчёт от поставщиков →</button>
+    <div class="calc-note" id="calc-note-default">Заявка уходит проверенным поставщикам по выбранным категориям — без обзвона десятка сайтов</div>
+
+    <div id="calc-lead-form" style="display:none; margin-top:14px;">
+      <div class="field" style="margin-bottom:8px;">
+        <input type="text" placeholder="Ваш телефон или Telegram" class="mono" style="width:100%; border:1px solid #3d5a80; background:#16294a; color:#fff; padding:10px 12px; font-size:13px;">
+      </div>
+      <button class="calc-cta" id="calc-send" style="background:#3E92CC; color:#fff;">Отправить заявку →</button>
+      <div class="calc-note">Пришлём расчёт и подборку поставщиков в течение дня</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="catalog">
+  <div class="section-head">
+    <span class="index-no">§01</span>
+    <h2>Индекс категорий</h2>
+    <span class="sub">/// полный справочник — 12 разделов</span>
+  </div>
+  <div class="cat-grid">
+
+    <div class="cat-card">
+      <div class="idx">01</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M5 12h14M12 5v14"/></svg>
+      <h3>Батуты</h3>
+      <p>Оборудование, страховка, покрытия</p>
+      <span class="count">24 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">02</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="8" width="16" height="10" rx="1"/><path d="M9 8V6a3 3 0 016 0v2"/></svg>
+      <h3>Лазертаг</h3>
+      <p>Жилеты, автоматы, ПО учёта</p>
+      <span class="count">18 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">03</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 2v6M9 6l3-4 3 4"/><circle cx="12" cy="16" r="6"/></svg>
+      <h3>Боулинг</h3>
+      <p>Дорожки, пинсеттеры, обувь</p>
+      <span class="count">9 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">04</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg>
+      <h3>Аттракционы</h3>
+      <p>Карусели, электромобили</p>
+      <span class="count">31 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">05</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 18c2-4 4-6 8-6s6 2 8 6"/><circle cx="12" cy="7" r="3"/></svg>
+      <h3>Надувные конструкции</h3>
+      <p>Горки, полосы препятствий</p>
+      <span class="count">15 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">06</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>
+      <h3>Игровые комнаты</h3>
+      <p>Сухие бассейны, лабиринты</p>
+      <span class="count">22 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">07</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M9 16h6"/></svg>
+      <h3>Роботы и интерактив</h3>
+      <p>Панели, роботы, VR</p>
+      <span class="count">11 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">08</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 10h16M4 14h10"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/></svg>
+      <h3>Ролевые зоны</h3>
+      <p>Мини-города профессий</p>
+      <span class="count">13 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">09</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M3 15c3-6 6-8 9-8s6 2 9 8"/><path d="M3 15h18"/></svg>
+      <h3>Водные аттракционы</h3>
+      <p>Горки, бассейны</p>
+      <span class="count">8 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">10</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 21V9l8-6 8 6v12"/><path d="M4 21h16"/></svg>
+      <h3>МАФы / площадки</h3>
+      <p>Уличные комплексы</p>
+      <span class="count">17 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">11</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="12" width="16" height="8"/><path d="M8 12V8a4 4 0 018 0v4"/></svg>
+      <h3>Мебель и оснащение</h3>
+      <p>Ресепшн, освещение</p>
+      <span class="count">26 поз.</span>
+    </div>
+
+    <div class="cat-card">
+      <div class="idx">12</div>
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5"/></svg>
+      <h3>ПО и кассы</h3>
+      <p>CRM, абонементы, аналитика</p>
+      <span class="count">7 поз.</span>
+    </div>
+
+  </div>
+</section>
+
+<section class="section" id="suppliers" style="background:var(--panel);">
+  <div class="section-head">
+    <span class="index-no">§02</span>
+    <h2>Проверенные поставщики</h2>
+    <span class="sub">/// подтверждено по ИНН + модерация</span>
+  </div>
+  <div class="sup-grid">
+
+    <div class="sup-card">
+      <div class="stamp">
+        <svg viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="27" stroke-width="1"/>
+          <path id="tp" d="M 40 13 A 27 27 0 1 1 39.9 13" fill="none"/>
+          <text><textPath href="#tp" startOffset="2">ПРОВЕРЕНО · ПАРКСНАБ · ИНН ·</textPath></text>
+          <path d="M30 41l7 7 13-15" fill="none" stroke="var(--alert)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="row1">
+        <div>
+          <h4>БатутМастер</h4>
+          <div class="region">Челябинск · ИНН 74••••••••</div>
+        </div>
+      </div>
+      <p class="desc">Производство батутного оборудования и страховочных систем полного цикла.</p>
+      <div class="tags"><span class="tag">Батуты</span><span class="tag">Покрытия</span></div>
+    </div>
+
+    <div class="sup-card">
+      <div class="stamp">
+        <svg viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="27" stroke-width="1"/>
+          <path id="tp2" d="M 40 13 A 27 27 0 1 1 39.9 13" fill="none"/>
+          <text><textPath href="#tp2" startOffset="2">ПРОВЕРЕНО · ПАРКСНАБ · ИНН ·</textPath></text>
+          <path d="M30 41l7 7 13-15" fill="none" stroke="var(--alert)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="row1">
+        <div>
+          <h4>Лазертаг-Шоп</h4>
+          <div class="region">Москва · ИНН 77••••••••</div>
+        </div>
+      </div>
+      <p class="desc">Оборудование для арен лазертага, жилеты, ПО учёта игровых сессий.</p>
+      <div class="tags"><span class="tag">Лазертаг</span><span class="tag">ПО</span></div>
+    </div>
+
+    <div class="sup-card">
+      <div class="stamp">
+        <svg viewBox="0 0 80 80">
+          <circle cx="40" cy="40" r="34" stroke-width="1.5"/>
+          <circle cx="40" cy="40" r="27" stroke-width="1"/>
+          <path id="tp3" d="M 40 13 A 27 27 0 1 1 39.9 13" fill="none"/>
+          <text><textPath href="#tp3" startOffset="2">ПРОВЕРЕНО · ПАРКСНАБ · ИНН ·</textPath></text>
+          <path d="M30 41l7 7 13-15" fill="none" stroke="var(--alert)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="row1">
+        <div>
+          <h4>РобоТейл</h4>
+          <div class="region">Санкт-Петербург · ИНН 78••••••••</div>
+        </div>
+      </div>
+      <p class="desc">Интерактивные панели и роботы для детских развлекательных зон.</p>
+      <div class="tags"><span class="tag">Интерактив</span><span class="tag">VR</span></div>
+    </div>
+
+  </div>
+</section>
+
+<section class="seller-band" id="seller">
+  <div>
+    <span class="eyebrow">Для поставщиков</span>
+    <h2>Разместите компанию в каталоге ПаркСнаб</h2>
+    <p>Введите ИНН — система автоматически подтянет реквизиты компании из ЕГРЮЛ. Проверка занимает несколько секунд, публикация карточки — после модерации.</p>
+  </div>
+  <div class="form-card">
+    <div class="fc-title"><span>Регистрация поставщика</span><span class="price">5 000 ₽ разово</span></div>
+    <div class="field">
+      <label>ИНН КОМПАНИИ</label>
+      <input type="text" placeholder="7726123456" class="mono">
+    </div>
+    <div class="field">
+      <label>КОНТАКТНЫЙ EMAIL</label>
+      <input type="text" placeholder="info@company.ru">
+    </div>
+    <button>Проверить ИНН и продолжить →</button>
+    <div class="fc-note">После проверки — карточка компании заполняется автоматически: название, ОГРН, адрес, статус.</div>
+  </div>
+</section>
+
+<footer>
+  <span>© ПАРКСНАБ · B2B КАТАЛОГ ОБОРУДОВАНИЯ ДЛЯ ДРЦ</span>
+  <span>NIZAMOV-TECH × А. ПРОНЧЕВ</span>
+</footer>
+
+<script>
+(function(){
+  const pills = document.querySelectorAll('.area-pill');
+  const checks = document.querySelectorAll('#cat-checks input');
+  const totalEl = document.getElementById('calc-total');
+  const countEl = document.getElementById('calc-count');
+  let mult = 1;
+
+  function fmt(n){
+    return (n/1000000).toFixed(1).replace('.0','');
+  }
+
+  function recalc(){
+    let min = 0, max = 0, checkedCount = 0;
+    checks.forEach(c => {
+      if(c.checked){
+        min += parseInt(c.dataset.min);
+        max += parseInt(c.dataset.max);
+        checkedCount++;
+      }
+    });
+    min = Math.round(min * mult);
+    max = Math.round(max * mult);
+    countEl.textContent = checkedCount + ' ' + (checkedCount === 1 ? 'зона' : 'зон');
+    if(checkedCount === 0){
+      totalEl.textContent = 'Выберите зоны';
+    } else {
+      totalEl.textContent = fmt(min) + ' — ' + fmt(max) + ' млн ₽';
+    }
+  }
+
+  pills.forEach(p => {
+    p.addEventListener('click', () => {
+      pills.forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      mult = parseFloat(p.dataset.mult);
+      recalc();
+    });
+  });
+
+  checks.forEach(c => c.addEventListener('change', recalc));
+
+  document.getElementById('calc-cta').addEventListener('click', function(){
+    document.getElementById('calc-lead-form').style.display = 'block';
+    document.getElementById('calc-note-default').style.display = 'none';
+    this.style.display = 'none';
+  });
+
+  document.getElementById('calc-send').addEventListener('click', function(){
+    document.getElementById('calc-lead-form').innerHTML = '<div class="calc-note" style="color:#8fb3d6; font-size:11px;">✓ Заявка принята. Свяжемся в течение дня.</div>';
+  });
+
+  recalc();
+})();
+</script>
+</body>
+</html>
