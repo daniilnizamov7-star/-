@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ПаркСнаб — Конструктор парка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7; --panel:#EDEFF3; --ink:#1B3A5C; --steel:#232B38;
+    --cyan:#3E92CC; --amber:#F2A93B; --alert:#E4572E; --green:#2E9E5B;
+    --graphite:#4A4F58; --line:#dde3ec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--paper); color:var(--ink); font-family:'IBM Plex Sans', sans-serif; -webkit-font-smoothing:antialiased; }
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  header{
+    background:var(--steel); color:#fff; padding:16px 5%;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:3px solid var(--amber);
+  }
+  .logo{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:19px; display:flex; align-items:center; gap:8px; }
+  .logo .mark{ width:9px; height:9px; background:var(--amber); transform:rotate(45deg); display:inline-block; }
+  header .back{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:#cdd6e3; }
+
+  .page-head{ padding:26px 5% 0 5%; }
+  .page-head .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--cyan);
+    text-transform:uppercase; letter-spacing:1px; display:block; margin-bottom:6px;
+  }
+  .page-head h1{ font-family:'Space Grotesk', sans-serif; font-size:26px; font-weight:700; color:var(--steel); }
+  .page-head p{ color:var(--graphite); font-size:13.5px; margin-top:6px; max-width:640px; line-height:1.5; }
+
+  /* toolbar */
+  .toolbar{
+    display:flex; align-items:center; gap:18px; padding:18px 5% 0 5%; flex-wrap:wrap;
+  }
+  .plot-label{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--graphite); text-transform:uppercase; letter-spacing:0.5px; }
+  .plot-pills{ display:flex; gap:6px; }
+  .plot-pill{
+    border:1px solid var(--line); background:#fff; padding:8px 13px; font-family:'IBM Plex Mono', monospace;
+    font-size:12px; color:var(--graphite); cursor:pointer;
+  }
+  .plot-pill.active{ background:var(--ink); border-color:var(--ink); color:#fff; font-weight:600; }
+  .btn-clear{
+    margin-left:auto; border:1px solid var(--alert); color:var(--alert); background:#fff;
+    font-family:'Oswald', sans-serif; text-transform:uppercase; font-weight:600; letter-spacing:0.4px;
+    font-size:11.5px; padding:9px 14px; cursor:pointer;
+  }
+
+  .custom-size{
+    display:none; align-items:center; gap:6px;
+  }
+  .custom-size.show{ display:flex; }
+  .custom-size input{
+    width:88px; border:1px solid var(--line); padding:8px 10px; font-size:12px;
+  }
+  .custom-size input:focus{ outline:2px solid var(--cyan); }
+  .cs-x{ font-family:'IBM Plex Mono', monospace; color:var(--graphite); font-size:12px; }
+  .custom-size button{
+    background:var(--ink); border:none; color:#fff; font-family:'Oswald', sans-serif;
+    text-transform:uppercase; font-weight:600; font-size:11px; letter-spacing:0.4px;
+    padding:9px 12px; cursor:pointer;
+  }
+
+  /* main layout */
+  .layout{
+    display:grid; grid-template-columns:220px 1fr 260px; gap:18px;
+    padding:18px 5% 60px 5%; align-items:start;
+  }
+
+  /* palette */
+  .palette{ background:#fff; border:1px solid var(--line); }
+  .palette-head{
+    font-family:'Oswald', sans-serif; text-transform:uppercase; font-size:11.5px; font-weight:600;
+    letter-spacing:0.6px; color:var(--steel); padding:13px 16px; border-bottom:1px solid var(--line);
+  }
+  .zone-item{
+    display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px solid var(--line);
+    cursor:grab; user-select:none;
+  }
+  .zone-item:last-child{ border-bottom:none; }
+  .zone-item:active{ cursor:grabbing; }
+  .zone-item svg{ width:20px; height:20px; stroke:var(--ink); flex-shrink:0; }
+  .zi-text{ min-width:0; }
+  .zi-name{ font-size:12px; font-weight:600; color:var(--steel); line-height:1.3; }
+  .zi-meta{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--graphite); margin-top:1px; }
+
+  .palette-hint{
+    padding:12px 14px; font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--graphite);
+    background:var(--panel); line-height:1.6;
+  }
+
+  /* canvas area */
+  .canvas-card{ background:var(--ink); padding:14px; }
+  .canvas-cap{
+    font-family:'IBM Plex Mono', monospace; color:#8fb3d6; font-size:10px; text-transform:uppercase;
+    letter-spacing:0.5px; display:flex; justify-content:space-between; margin-bottom:10px;
+  }
+  .plan-wrap{ position:relative; background:#fff; }
+  #plan-canvas{ display:block; }
+  .overlay{ position:absolute; top:0; left:0; }
+
+  .zone-block{
+    position:absolute; border:1.6px solid; background:rgba(255,255,255,0.94);
+    padding:6px 8px; overflow:hidden; cursor:grab;
+  }
+  .zone-block.dragging{ cursor:grabbing; opacity:0.85; z-index:50; }
+  .zb-head{ display:flex; align-items:center; gap:5px; }
+  .zb-head svg{ width:13px; height:13px; flex-shrink:0; }
+  .zb-name{ font-family:'Oswald', sans-serif; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .zb-remove{
+    margin-left:auto; font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--alert);
+    cursor:pointer; padding:0 2px; flex-shrink:0;
+  }
+  .zb-dim{ font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--graphite); margin-top:2px; }
+
+  /* summary panel */
+  .summary{ background:#fff; border:1px solid var(--line); }
+  .summary-head{
+    font-family:'Oswald', sans-serif; text-transform:uppercase; font-size:11.5px; font-weight:600;
+    letter-spacing:0.6px; color:var(--steel); padding:13px 16px; border-bottom:1px solid var(--line);
+  }
+  .summary-body{ padding:16px; }
+  .sum-row-label{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--graphite); text-transform:uppercase; letter-spacing:0.4px; }
+  .sum-area-val{ font-family:'Space Grotesk', sans-serif; font-size:20px; font-weight:700; color:var(--steel); margin:4px 0 8px 0; }
+  .progress-track{ height:7px; background:var(--panel); position:relative; margin-bottom:4px; }
+  .progress-fill{ height:100%; background:var(--cyan); transition:width .2s ease; }
+  .progress-fill.over{ background:var(--alert); }
+  .progress-note{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--graphite); margin-bottom:16px; }
+
+  .sum-budget{ border-top:1px solid var(--line); padding-top:14px; margin-top:2px; }
+  .sum-budget-val{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--amber); margin-top:4px; }
+
+  .placed-list{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; max-height:180px; overflow-y:auto; }
+  .placed-item{ display:flex; justify-content:space-between; font-size:11.5px; padding:5px 0; color:var(--steel); }
+  .placed-item .pi-price{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--graphite); }
+  .placed-empty{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#9aa5b5; padding:8px 0; }
+
+  .cta-block{ padding:16px; border-top:1px solid var(--line); }
+  .cta-btn{
+    width:100%; background:var(--amber); border:none; color:var(--steel);
+    font-family:'Oswald', sans-serif; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;
+    font-size:12px; padding:12px; cursor:pointer;
+  }
+  .cta-note{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--graphite); margin-top:8px; line-height:1.5; text-align:center; }
+
+  .lead-mini{ display:none; margin-top:10px; }
+  .lead-mini input{
+    width:100%; border:1px solid var(--line); padding:9px 11px; font-family:'IBM Plex Mono', monospace;
+    font-size:12px; margin-bottom:8px;
+  }
+
+  @media (max-width:1000px){
+    .layout{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="mark"></span>ПАРКСНАБ</div>
+  <a class="back" href="index.html">← Вернуться на главную</a>
+</header>
+
+<div class="page-head">
+  <span class="eyebrow">Интерактивный инструмент</span>
+  <h1>Конструктор парка</h1>
+  <p>Перетащите зоны на план помещения — площадь и бюджет считаются автоматически, по тем же диапазонам цен, что и в каталоге ПаркСнаб.</p>
+</div>
+
+<div class="toolbar">
+  <span class="plot-label">Площадь помещения</span>
+  <div class="plot-pills" id="plot-pills">
+    <div class="plot-pill" data-w="20" data-h="15">20×15 м · 300 м²</div>
+    <div class="plot-pill active" data-w="30" data-h="20">30×20 м · 600 м²</div>
+    <div class="plot-pill" data-w="40" data-h="30">40×30 м · 1200 м²</div>
+    <div class="plot-pill" id="pill-custom">Свой размер</div>
+  </div>
+  <div class="custom-size" id="custom-size">
+    <input type="number" id="custom-w" class="mono" placeholder="Ширина, м" min="5" max="120">
+    <span class="cs-x">×</span>
+    <input type="number" id="custom-h" class="mono" placeholder="Глубина, м" min="5" max="120">
+    <button id="custom-apply">Применить</button>
+  </div>
+  <button class="btn-clear" id="btn-clear">Очистить план</button>
+</div>
+
+<div class="layout">
+
+  <!-- PALETTE -->
+  <div class="palette" id="palette">
+    <div class="palette-head">Зоны</div>
+    <!-- zone items injected by JS -->
+  </div>
+
+  <!-- CANVAS -->
+  <div class="canvas-card">
+    <div class="canvas-cap"><span>ПЛАН ПОМЕЩЕНИЯ</span><span id="scale-label">М 1:100</span></div>
+    <div class="plan-wrap" id="plan-wrap">
+      <canvas id="plan-canvas"></canvas>
+      <div class="overlay" id="overlay"></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary">
+    <div class="summary-head">Расчёт плана</div>
+    <div class="summary-body">
+      <div class="sum-row-label">Использовано площади</div>
+      <div class="sum-area-val" id="area-val">0 из 600 м²</div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-note" id="progress-note">Перетащите зону на план</div>
+
+      <div class="sum-budget">
+        <div class="sum-row-label">Ориентировочный бюджет</div>
+        <div class="sum-budget-val" id="budget-val">0 ₽</div>
+      </div>
+
+      <div class="placed-list" id="placed-list">
+        <div class="placed-empty">Пока пусто</div>
+      </div>
+    </div>
+    <div class="cta-block">
+      <button class="cta-btn" id="plan-cta">Получить расчёт по плану →</button>
+      <div class="cta-note" id="cta-note-default">Заявка уйдёт проверенным поставщикам по вашим зонам</div>
+      <div class="lead-mini" id="lead-mini">
+        <input type="text" placeholder="Ваш телефон или Telegram" class="mono">
+        <button class="cta-btn" id="lead-send" style="background:var(--cyan); color:#fff;">Отправить →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const ZONES = [
+    {id:'batut', name:'Батутная зона', w:12, h:10, color:'#F2A93B', pmin:800000, pmax:2200000,
+      icon:'<circle cx="12" cy="12" r="9"/><path d="M5 12h14M12 5v14"/>'},
+    {id:'lasertag', name:'Лазертаг', w:15, h:12, color:'#3E92CC', pmin:600000, pmax:1500000,
+      icon:'<rect x="4" y="8" width="16" height="10" rx="1"/><path d="M9 8V6a3 3 0 016 0v2"/>'},
+    {id:'bowling', name:'Боулинг', w:10, h:6, color:'#1B3A5C', pmin:1200000, pmax:2000000,
+      icon:'<path d="M12 2v6M9 6l3-4 3 4"/><circle cx="12" cy="16" r="6"/>'},
+    {id:'attractions', name:'Аттракционы', w:10, h:8, color:'#E4572E', pmin:400000, pmax:1000000,
+      icon:'<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>'},
+    {id:'inflatable', name:'Надувные конструкции', w:8, h:6, color:'#2E9E5B', pmin:250000, pmax:600000,
+      icon:'<path d="M4 18c2-4 4-6 8-6s6 2 8 6"/><circle cx="12" cy="7" r="3"/>'},
+    {id:'gameroom', name:'Игровые комнаты', w:10, h:8, color:'#4A4F58', pmin:500000, pmax:1200000,
+      icon:'<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/>'},
+    {id:'robots', name:'Роботы / интерактив', w:6, h:5, color:'#3E92CC', pmin:300000, pmax:900000,
+      icon:'<rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M9 16h6"/>'},
+    {id:'cafe', name:'Зона кафе', w:8, h:6, color:'#F2A93B', pmin:200000, pmax:500000,
+      icon:'<circle cx="8" cy="14" r="3"/><circle cx="16" cy="14" r="3"/><path d="M8 11V7M16 11V7"/>'},
+    {id:'reception', name:'Ресепшн и мебель', w:4, h:3, color:'#1B3A5C', pmin:150000, pmax:350000,
+      icon:'<rect x="4" y="12" width="16" height="8"/><path d="M8 12V8a4 4 0 018 0v4"/>'}
+  ];
+
+  const PLOTS = { '20x15':{w:20,h:15}, '30x20':{w:30,h:20}, '40x30':{w:40,h:30} };
+  let currentPlot = {w:30,h:20};
+  let pxPerMeter = 0;
+  let dragData = null;
+
+  const palette = document.getElementById('palette');
+  ZONES.forEach(z=>{
+    const el = document.createElement('div');
+    el.className='zone-item';
+    el.draggable = true;
+    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" style="stroke:${z.color}">${z.icon}</svg>
+      <div class="zi-text"><div class="zi-name">${z.name}</div><div class="zi-meta">${z.w}×${z.h} м · ${fmtShort(z.pmin)}–${fmtShort(z.pmax)}</div></div>`;
+    el.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', z.id);
+    });
+    palette.appendChild(el);
+  });
+  const hint = document.createElement('div');
+  hint.className='palette-hint';
+  hint.textContent = 'Перетащите зону на план справа. Размещённые блоки можно двигать мышью.';
+  palette.appendChild(hint);
+
+  function fmtShort(n){
+    return (n/1000000).toFixed(1).replace('.0','') + ' млн';
+  }
+
+  const canvas = document.getElementById('plan-canvas');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const planWrap = document.getElementById('plan-wrap');
+
+  function setupPlot(w, h){
+    currentPlot = {w, h};
+    const maxWidthPx = 700, maxHeightPx = 560;
+    pxPerMeter = Math.min(maxWidthPx / w, maxHeightPx / h);
+    const widthPx = Math.round(w * pxPerMeter);
+    const heightPx = Math.round(h * pxPerMeter);
+    canvas.width = widthPx; canvas.height = heightPx;
+    canvas.style.width = widthPx+'px'; canvas.style.height = heightPx+'px';
+    overlay.style.width = widthPx+'px'; overlay.style.height = heightPx+'px';
+    planWrap.style.width = widthPx+'px';
+    drawGrid();
+  }
+
+  function drawGrid(){
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#FAFAF7';
+    ctx.fillRect(0,0,w,h);
+
+    // thin 1m lines
+    ctx.strokeStyle = 'rgba(27,58,92,0.08)';
+    ctx.lineWidth = 1;
+    for(let x=0; x<=w; x+=pxPerMeter){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0; y<=h; y+=pxPerMeter){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+    // bold 5m lines
+    ctx.strokeStyle = 'rgba(62,146,204,0.35)';
+    ctx.lineWidth = 1.2;
+    const step5 = pxPerMeter*5;
+    for(let x=0; x<=w; x+=step5){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
+    for(let y=0; y<=h; y+=step5){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+
+    // border
+    ctx.strokeStyle = '#1B3A5C';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(1,1,w-2,h-2);
+
+    // meter labels
+    ctx.fillStyle = '#4A4F58';
+    ctx.font = '9px "IBM Plex Mono", monospace';
+    for(let x=step5; x<w; x+=step5){
+      ctx.fillText(Math.round(x/pxPerMeter)+'м', x+3, h-4);
+    }
+    for(let y=step5; y<h; y+=step5){
+      ctx.fillText(Math.round(y/pxPerMeter)+'м', 3, y-3);
+    }
+  }
+
+  document.querySelectorAll('.plot-pill[data-w]').forEach(p=>{
+    p.addEventListener('click', ()=>{
+      document.querySelectorAll('.plot-pill').forEach(x=>x.classList.remove('active'));
+      p.classList.add('active');
+      document.getElementById('custom-size').classList.remove('show');
+      clearAllBlocks();
+      setupPlot(parseInt(p.dataset.w), parseInt(p.dataset.h));
+      recalc();
+    });
+  });
+
+  document.getElementById('pill-custom').addEventListener('click', function(){
+    document.querySelectorAll('.plot-pill').forEach(x=>x.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('custom-size').classList.add('show');
+    document.getElementById('custom-w').value = currentPlot.w;
+    document.getElementById('custom-h').value = currentPlot.h;
+  });
+
+  document.getElementById('custom-apply').addEventListener('click', ()=>{
+    let w = parseInt(document.getElementById('custom-w').value);
+    let h = parseInt(document.getElementById('custom-h').value);
+    if(!w || !h || w<5 || h<5 || w>120 || h>120){
+      alert('Укажите размеры от 5 до 120 метров');
+      return;
+    }
+    clearAllBlocks();
+    setupPlot(w, h);
+    recalc();
+  });
+
+  overlay.addEventListener('dragover', e=> e.preventDefault());
+  overlay.addEventListener('drop', e=>{
+    e.preventDefault();
+    const zoneId = e.dataTransfer.getData('text/plain');
+    const zone = ZONES.find(z=>z.id===zoneId);
+    if(!zone) return;
+    const rect = overlay.getBoundingClientRect();
+    let x = e.clientX - rect.left - (zone.w*pxPerMeter)/2;
+    let y = e.clientY - rect.top - (zone.h*pxPerMeter)/2;
+    placeZone(zone, x, y);
+  });
+
+  function snap(v){ const s = pxPerMeter/2; return Math.round(v/s)*s; }
+
+  function placeZone(zone, x, y){
+    const wPx = zone.w*pxPerMeter, hPx = zone.h*pxPerMeter;
+    x = Math.max(0, Math.min(x, canvas.width - wPx));
+    y = Math.max(0, Math.min(y, canvas.height - hPx));
+    x = snap(x); y = snap(y);
+
+    const block = document.createElement('div');
+    block.className = 'zone-block';
+    block.style.left = x+'px'; block.style.top = y+'px';
+    block.style.width = wPx+'px'; block.style.height = hPx+'px';
+    block.style.borderColor = zone.color;
+    block.dataset.pmin = zone.pmin;
+    block.dataset.pmax = zone.pmax;
+    block.dataset.area = zone.w*zone.h;
+    block.dataset.name = zone.name;
+    block.innerHTML = `<div class="zb-head"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="stroke:${zone.color}">${zone.icon}</svg><span class="zb-name">${zone.name}</span><span class="zb-remove">×</span></div><div class="zb-dim">${zone.w}×${zone.h} м</div>`;
+
+    block.querySelector('.zb-remove').addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      block.remove();
+      recalc();
+    });
+
+    makeDraggable(block);
+    overlay.appendChild(block);
+    recalc();
+  }
+
+  function makeDraggable(block){
+    let sx, sy, ox, oy, moving=false;
+    block.addEventListener('mousedown', e=>{
+      if(e.target.classList.contains('zb-remove')) return;
+      moving = true;
+      block.classList.add('dragging');
+      sx = e.clientX; sy = e.clientY;
+      ox = parseFloat(block.style.left); oy = parseFloat(block.style.top);
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e=>{
+      if(!moving) return;
+      let nx = ox + (e.clientX - sx);
+      let ny = oy + (e.clientY - sy);
+      const bw = block.offsetWidth, bh = block.offsetHeight;
+      nx = Math.max(0, Math.min(nx, canvas.width - bw));
+      ny = Math.max(0, Math.min(ny, canvas.height - bh));
+      block.style.left = nx+'px'; block.style.top = ny+'px';
+    });
+    document.addEventListener('mouseup', ()=>{
+      if(!moving) return;
+      moving = false;
+      block.classList.remove('dragging');
+      block.style.left = snap(parseFloat(block.style.left))+'px';
+      block.style.top = snap(parseFloat(block.style.top))+'px';
+    });
+  }
+
+  function clearAllBlocks(){
+    overlay.innerHTML = '';
+  }
+
+  document.getElementById('btn-clear').addEventListener('click', ()=>{
+    clearAllBlocks();
+    recalc();
+  });
+
+  function recalc(){
+    const blocks = overlay.querySelectorAll('.zone-block');
+    const totalPlotArea = currentPlot.w * currentPlot.h;
+    let usedArea = 0, pmin = 0, pmax = 0;
+    const list = document.getElementById('placed-list');
+    list.innerHTML = '';
+    if(blocks.length===0){
+      list.innerHTML = '<div class="placed-empty">Пока пусто</div>';
+    }
+    blocks.forEach(b=>{
+      usedArea += parseFloat(b.dataset.area);
+      pmin += parseInt(b.dataset.pmin);
+      pmax += parseInt(b.dataset.pmax);
+      const row = document.createElement('div');
+      row.className = 'placed-item';
+      row.innerHTML = `<span>${b.dataset.name}</span><span class="pi-price">${fmtShort(parseInt(b.dataset.pmin))}–${fmtShort(parseInt(b.dataset.pmax))}</span>`;
+      list.appendChild(row);
+    });
+
+    document.getElementById('area-val').textContent = usedArea + ' из ' + totalPlotArea + ' м²';
+    const pct = Math.min(100, (usedArea/totalPlotArea)*100);
+    const fill = document.getElementById('progress-fill');
+    fill.style.width = pct+'%';
+    const note = document.getElementById('progress-note');
+    if(usedArea > totalPlotArea){
+      fill.classList.add('over');
+      note.textContent = 'План превышает площадь помещения на ' + (usedArea-totalPlotArea) + ' м²';
+      note.style.color = 'var(--alert)';
+    } else {
+      fill.classList.remove('over');
+      note.textContent = Math.round(100-pct) + '% площади ещё свободно';
+      note.style.color = '';
+    }
+
+    document.getElementById('budget-val').textContent = blocks.length ? (fmtShort(pmin)+' – '+fmtShort(pmax)+' ₽') : '0 ₽';
+  }
+
+  document.getElementById('plan-cta').addEventListener('click', function(){
+    document.getElementById('lead-mini').style.display = 'block';
+    document.getElementById('cta-note-default').style.display = 'none';
+    this.style.display = 'none';
+  });
+  document.getElementById('lead-send').addEventListener('click', function(){
+    document.getElementById('lead-mini').innerHTML = '<div class="cta-note" style="color:var(--green);">✓ Заявка принята. Свяжемся в течение дня.</div>';
+  });
+
+  setupPlot(30, 20);
+  recalc();
+</script>
+
+</body>
+</html>
