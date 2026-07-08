@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ПаркСнаб — Кабинет продавца</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAFAF7;
+    --panel:#EDEFF3;
+    --ink:#1B3A5C;
+    --steel:#232B38;
+    --cyan:#3E92CC;
+    --amber:#F2A93B;
+    --alert:#E4572E;
+    --green:#2E9E5B;
+    --graphite:#4A4F58;
+    --line:#dde3ec;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--panel);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  .app{
+    display:grid;
+    grid-template-columns:240px 1fr;
+    min-height:100vh;
+  }
+
+  /* ================= SIDEBAR ================= */
+  aside{
+    background:var(--steel);
+    color:#fff;
+    padding:22px 0;
+    display:flex;
+    flex-direction:column;
+  }
+  .side-logo{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    padding:0 22px 22px 22px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border-bottom:1px solid #34405a;
+    margin-bottom:14px;
+  }
+  .side-logo .mark{
+    width:9px; height:9px;
+    background:var(--amber);
+    transform:rotate(45deg);
+    display:inline-block;
+  }
+  nav.side-nav{ flex:1; }
+  .side-sec-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:#6d7b93;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    padding:14px 22px 6px 22px;
+  }
+  .side-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:10px 22px;
+    font-size:13.5px;
+    color:#c3cddb;
+    border-left:3px solid transparent;
+    cursor:pointer;
+  }
+  .side-item svg{ width:16px; height:16px; stroke:#8fa1bd; flex-shrink:0; }
+  .side-item:hover{ background:#2c3547; }
+  .side-item.active{
+    background:#2c3547;
+    border-left-color:var(--amber);
+    color:#fff;
+    font-weight:600;
+  }
+  .side-item.active svg{ stroke:var(--amber); }
+  .side-item .pill{
+    margin-left:auto;
+    background:var(--amber);
+    color:var(--steel);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    font-weight:700;
+    padding:1px 6px;
+    border-radius:8px;
+  }
+  .side-foot{
+    margin:14px 22px 0 22px;
+    padding-top:14px;
+    border-top:1px solid #34405a;
+  }
+  .side-foot .lbl{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9.5px;
+    color:#6d7b93;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .side-foot .val{
+    font-size:12.5px;
+    color:#dbe4f0;
+    margin-top:3px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .side-foot .dot{
+    width:6px; height:6px; border-radius:50%;
+    background:var(--green);
+    display:inline-block;
+  }
+
+  /* ================= MAIN ================= */
+  main{ padding:26px 34px 60px 34px; }
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:26px;
+  }
+  .company-id{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .company-id h1{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:22px;
+    font-weight:700;
+    color:var(--steel);
+  }
+  .verified-chip{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    background:#fff0dc;
+    color:#a35b12;
+    border:1px solid #f0cf9a;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    font-weight:600;
+    padding:4px 9px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+  }
+  .verified-chip svg{ width:11px; height:11px; }
+  .top-actions{ display:flex; align-items:center; gap:16px; }
+  .btn-add{
+    background:var(--ink);
+    color:#fff;
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    letter-spacing:0.6px;
+    font-size:12.5px;
+    padding:11px 18px;
+    border:none;
+    cursor:pointer;
+  }
+  .bell{
+    width:20px; height:20px;
+    stroke:var(--graphite);
+    position:relative;
+    cursor:pointer;
+  }
+  .avatar{
+    width:34px; height:34px;
+    background:var(--ink);
+    color:#fff;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:13px;
+  }
+
+  /* ---- KPI row ---- */
+  .kpi-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin-bottom:24px;
+  }
+  .kpi-card{
+    background:#fff;
+    border:1px solid var(--line);
+    padding:18px 20px;
+    position:relative;
+  }
+  .kpi-card .k-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--graphite);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+  }
+  .kpi-card .k-value{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--steel);
+    margin-top:6px;
+  }
+  .kpi-card .k-delta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    margin-top:6px;
+  }
+  .k-delta.up{ color:var(--green); }
+  .k-delta.flat{ color:var(--graphite); }
+  .k-delta.warn{ color:var(--alert); }
+
+  /* ---- content grid ---- */
+  .content-grid{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:20px;
+    align-items:start;
+  }
+
+  .panel{
+    background:#fff;
+    border:1px solid var(--line);
+  }
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 20px;
+    border-bottom:1px solid var(--line);
+  }
+  .panel-head h2{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    font-size:14px;
+    font-weight:600;
+    color:var(--steel);
+  }
+  .panel-head .link{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--cyan);
+  }
+
+  /* chart */
+  .chart-wrap{ padding:20px; }
+  .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:6px;
+    height:130px;
+    margin-bottom:8px;
+  }
+  .bar{
+    flex:1;
+    background:var(--panel);
+    position:relative;
+    border-top:2px solid var(--cyan);
+  }
+  .bar.hi{ border-top-color:var(--amber); }
+  .bar-labels{
+    display:flex;
+    gap:6px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:9px;
+    color:#9aa5b5;
+  }
+  .bar-labels span{ flex:1; text-align:center; }
+
+  /* requests table */
+  table{ width:100%; border-collapse:collapse; }
+  th{
+    text-align:left;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.4px;
+    color:var(--graphite);
+    padding:10px 20px;
+    background:var(--panel);
+  }
+  td{
+    padding:12px 20px;
+    border-top:1px solid var(--line);
+    font-size:13px;
+    vertical-align:middle;
+  }
+  .status-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    font-weight:600;
+    padding:3px 9px;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+  }
+  .status-new{ background:#e6f1fb; color:var(--cyan); }
+  .status-progress{ background:#fff3e0; color:#b9791a; }
+  .status-closed{ background:var(--panel); color:var(--graphite); }
+  .cat-mini{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--graphite);
+  }
+
+  /* products list (side panel) */
+  .prod-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:13px 20px;
+    border-top:1px solid var(--line);
+  }
+  .prod-row:first-child{ border-top:none; }
+  .prod-thumb{
+    width:38px; height:38px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    flex-shrink:0;
+  }
+  .prod-info{ flex:1; min-width:0; }
+  .prod-info .pname{
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--steel);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .prod-info .pmeta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    color:var(--graphite);
+    margin-top:2px;
+  }
+  .prod-status{
+    width:8px; height:8px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .ps-live{ background:var(--green); }
+  .ps-review{ background:var(--amber); }
+  .ps-rejected{ background:var(--alert); }
+
+  /* promotion upsell */
+  .promo-card{
+    background:var(--ink);
+    color:#fff;
+    padding:20px;
+    margin-top:20px;
+  }
+  .promo-card .p-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px;
+    color:#8fb3d6;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+  }
+  .promo-card h3{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:16px;
+    font-weight:600;
+    margin:8px 0 6px 0;
+  }
+  .promo-card p{
+    font-size:12.5px;
+    color:#c3cddb;
+    line-height:1.5;
+    margin-bottom:14px;
+  }
+  .promo-card button{
+    width:100%;
+    background:var(--amber);
+    border:none;
+    color:var(--steel);
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    letter-spacing:0.6px;
+    font-size:12px;
+    padding:11px;
+    cursor:pointer;
+  }
+
+  .section-gap{ margin-top:20px; }
+
+  /* tab switching */
+  .tab-panel{ display:none; }
+  .tab-panel.active{ display:block; }
+
+  /* filter tabs */
+  .filter-tabs{ display:flex; gap:6px; }
+  .ftab{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--graphite);
+    background:var(--panel); padding:5px 11px; cursor:pointer;
+  }
+  .ftab.active{ background:var(--ink); color:#fff; }
+
+  .prod-cell{ display:flex; align-items:center; gap:10px; }
+  .prod-thumb.sm{ width:28px; height:28px; }
+  .dot-status{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .link{ color:var(--cyan); font-family:'IBM Plex Mono', monospace; font-size:11.5px; cursor:pointer; }
+
+  /* promotion tiers */
+  .promo-tiers{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .promo-tier{ background:#fff; border:1px solid var(--line); padding:20px; text-align:center; }
+  .promo-tier.featured{ border-color:var(--amber); border-width:2px; }
+  .pt-name{ font-family:'Oswald', sans-serif; text-transform:uppercase; font-size:13px; font-weight:600; color:var(--steel); margin-bottom:10px; letter-spacing:0.4px; }
+  .pt-price{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--ink); margin-bottom:8px; }
+  .pt-price span{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--graphite); font-weight:400; }
+  .pt-desc{ font-size:12px; color:var(--graphite); line-height:1.5; }
+
+  /* reviews */
+  .review-row{ padding:16px 20px; border-top:1px solid var(--line); }
+  .review-row:first-child{ border-top:none; }
+  .rev-top{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .stars{ color:var(--amber); font-size:13px; letter-spacing:1px; }
+  .rev-author{ font-size:12.5px; font-weight:600; color:var(--steel); }
+  .rev-date{ margin-left:auto; font-size:10.5px; color:var(--graphite); }
+  .review-row p{ font-size:12.5px; color:var(--graphite); line-height:1.5; margin-bottom:6px; }
+
+  /* toggle row */
+  .toggle-row{ display:flex; align-items:center; gap:10px; padding:10px 0; font-size:13px; color:var(--steel); cursor:pointer; }
+  .toggle-row input{ accent-color:var(--amber); width:16px; height:16px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside>
+    <div class="side-logo"><span class="mark"></span>ПАРКСНАБ</div>
+
+    <nav class="side-nav">
+      <div class="side-sec-label">Обзор</div>
+      <div class="side-item active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="3" y="3" width="8" height="8"/><rect x="13" y="3" width="8" height="5"/><rect x="13" y="12" width="8" height="9"/><rect x="3" y="14" width="8" height="7"/></svg>
+        Дашборд
+      </div>
+
+      <div class="side-sec-label">Продажи</div>
+      <div class="side-item" data-tab="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="7" width="16" height="13" rx="1"/><path d="M9 7V5a3 3 0 016 0v2"/></svg>
+        Товары
+        <span class="pill">24</span>
+      </div>
+      <div class="side-item" data-tab="requests">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Заявки
+        <span class="pill">7</span>
+      </div>
+      <div class="side-item" data-tab="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
+        Аналитика
+      </div>
+      <div class="side-item" data-tab="promotion">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M13 2L4 14h6l-1 8 9-12h-6z"/></svg>
+        Продвижение
+      </div>
+
+      <div class="side-sec-label">Компания</div>
+      <div class="side-item" data-tab="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h5M8 17h3"/></svg>
+        Профиль компании
+      </div>
+      <div class="side-item" data-tab="reviews">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 2l2.5 6.5H21l-5.5 4 2 6.5-5.5-4-5.5 4 2-6.5L3 8.5h6.5z"/></svg>
+        Отзывы
+      </div>
+      <div class="side-item" data-tab="finance">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Финансы
+      </div>
+      <div class="side-item" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 005 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015.4 4.6a1.65 1.65 0 001.82.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Настройки
+      </div>
+    </nav>
+
+    <div class="side-foot">
+      <div class="lbl">Статус регистрации</div>
+      <div class="val"><span class="dot"></span>Оплачено · Активен</div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main>
+    <div class="topbar">
+      <div class="company-id">
+        <h1>БатутМастер</h1>
+        <div class="verified-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#a35b12" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Проверено · ИНН
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn-add">+ Добавить товар</button>
+        <svg class="bell" viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+        <div class="avatar">БМ</div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: DASHBOARD ============ -->
+    <div class="tab-panel active" id="tab-dashboard">
+    <!-- KPI -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="k-label">Товаров опубликовано</div>
+        <div class="k-value">24</div>
+        <div class="k-delta flat">3 на модерации</div>
+      </div>
+      <div class="kpi-card">
+        <div class="k-label">Новые заявки</div>
+        <div class="k-value">7</div>
+        <div class="k-delta up">+3 за неделю</div>
+      </div>
+      <div class="kpi-card">
+        <div class="k-label">Просмотры за 30 дней</div>
+        <div class="k-value">1 240</div>
+        <div class="k-delta up">+18% к прошлому</div>
+      </div>
+      <div class="kpi-card">
+        <div class="k-label">Конверсия в заявку</div>
+        <div class="k-value">12%</div>
+        <div class="k-delta warn">−2% к прошлому</div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Просмотры карточек · 14 дней</h2>
+            <span class="link">Вся аналитика →</span>
+          </div>
+          <div class="chart-wrap">
+            <div class="bars">
+              <div class="bar" style="height:38%"></div>
+              <div class="bar" style="height:52%"></div>
+              <div class="bar" style="height:44%"></div>
+              <div class="bar" style="height:61%"></div>
+              <div class="bar" style="height:48%"></div>
+              <div class="bar" style="height:70%"></div>
+              <div class="bar hi" style="height:88%"></div>
+              <div class="bar" style="height:55%"></div>
+              <div class="bar" style="height:63%"></div>
+              <div class="bar" style="height:58%"></div>
+              <div class="bar" style="height:72%"></div>
+              <div class="bar" style="height:66%"></div>
+              <div class="bar hi" style="height:91%"></div>
+              <div class="bar" style="height:80%"></div>
+            </div>
+            <div class="bar-labels">
+              <span>25.06</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>01.07</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel section-gap">
+          <div class="panel-head">
+            <h2>Последние заявки</h2>
+            <span class="link">Все заявки →</span>
+          </div>
+          <table>
+            <tr>
+              <th>Дата</th><th>Покупатель</th><th>Категория</th><th>Сообщение</th><th>Статус</th>
+            </tr>
+            <tr>
+              <td class="mono">08.07</td>
+              <td>Игорь К., ИП «Весёлый двор»</td>
+              <td class="cat-mini">Батутная зона</td>
+              <td>Интересует батут 8×8 м с страховкой…</td>
+              <td><span class="status-tag status-new">Новая</span></td>
+            </tr>
+            <tr>
+              <td class="mono">07.07</td>
+              <td>ООО «Радуга-Парк»</td>
+              <td class="cat-mini">Батутная зона</td>
+              <td>Нужен расчёт под помещение 400 м²</td>
+              <td><span class="status-tag status-progress">В работе</span></td>
+            </tr>
+            <tr>
+              <td class="mono">05.07</td>
+              <td>Светлана П.</td>
+              <td class="cat-mini">Покрытия</td>
+              <td>Уточнить наличие поролоновых матов</td>
+              <td><span class="status-tag status-closed">Закрыта</span></td>
+            </tr>
+            <tr>
+              <td class="mono">03.07</td>
+              <td>Артём, «Джамп Сити»</td>
+              <td class="cat-mini">Страховочные системы</td>
+              <td>Запрос КП на сетку безопасности</td>
+              <td><span class="status-tag status-closed">Закрыта</span></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Мои товары</h2>
+            <span class="link">Все →</span>
+          </div>
+          <div class="prod-row">
+            <div class="prod-thumb"></div>
+            <div class="prod-info">
+              <div class="pname">Батут прыжковый 8×8 м</div>
+              <div class="pmeta">от 640 000 ₽ · 214 просмотров</div>
+            </div>
+            <div class="prod-status ps-live" title="Опубликован"></div>
+          </div>
+          <div class="prod-row">
+            <div class="prod-thumb"></div>
+            <div class="prod-info">
+              <div class="pname">Страховочная сетка периметра</div>
+              <div class="pmeta">цена по запросу · 98 просмотров</div>
+            </div>
+            <div class="prod-status ps-live" title="Опубликован"></div>
+          </div>
+          <div class="prod-row">
+            <div class="prod-thumb"></div>
+            <div class="prod-info">
+              <div class="pname">Поролоновое покрытие ямы</div>
+              <div class="pmeta">от 85 000 ₽ · на модерации</div>
+            </div>
+            <div class="prod-status ps-review" title="На модерации"></div>
+          </div>
+          <div class="prod-row">
+            <div class="prod-thumb"></div>
+            <div class="prod-info">
+              <div class="pname">Батут-башня 4×4 м (мини)</div>
+              <div class="pmeta">карточка отклонена — нет фото</div>
+            </div>
+            <div class="prod-status ps-rejected" title="Отклонён"></div>
+          </div>
+        </div>
+
+        <div class="promo-card">
+          <div class="p-eyebrow">Продвижение</div>
+          <h3>Поднять карточки в топ категории</h3>
+          <p>Товары в топе получают в среднем на 3,4× больше просмотров и заявок. Продвижение — от 1 500 ₽/нед. за карточку.</p>
+          <button>Продвинуть товары →</button>
+        </div>
+      </div>
+    </div>
+    </div><!-- /tab-dashboard -->
+
+    <!-- ============ TAB: PRODUCTS ============ -->
+    <div class="tab-panel" id="tab-products">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Товары · 24</h2>
+          <div class="filter-tabs">
+            <span class="ftab active">Все 24</span>
+            <span class="ftab">Опубликованы 20</span>
+            <span class="ftab">На модерации 3</span>
+            <span class="ftab">Отклонены 1</span>
+          </div>
+        </div>
+        <table>
+          <tr><th>Товар</th><th>Категория</th><th>Цена</th><th>Просмотры</th><th>Статус</th><th></th></tr>
+          <tr>
+            <td class="prod-cell"><div class="prod-thumb sm"></div>Батут прыжковый 8×8 м</td>
+            <td class="cat-mini">Батуты</td><td class="mono">640 000 ₽</td><td class="mono">214</td>
+            <td><span class="dot-status ps-live"></span>Опубликован</td><td class="link">Редактировать</td>
+          </tr>
+          <tr>
+            <td class="prod-cell"><div class="prod-thumb sm"></div>Страховочная сетка периметра</td>
+            <td class="cat-mini">Страховка</td><td class="mono">по запросу</td><td class="mono">98</td>
+            <td><span class="dot-status ps-live"></span>Опубликован</td><td class="link">Редактировать</td>
+          </tr>
+          <tr>
+            <td class="prod-cell"><div class="prod-thumb sm"></div>Батут надувной 6×6 м</td>
+            <td class="cat-mini">Батуты</td><td class="mono">410 000 ₽</td><td class="mono">156</td>
+            <td><span class="dot-status ps-live"></span>Опубликован</td><td class="link">Редактировать</td>
+          </tr>
+          <tr>
+            <td class="prod-cell"><div class="prod-thumb sm"></div>Ограждение периметра батута</td>
+            <td class="cat-mini">Покрытия</td><td class="mono">62 000 ₽</td><td class="mono">71</td>
+            <td><span class="dot-status ps-live"></span>Опубликован</td><td class="link">Редактировать</td>
+          </tr>
+          <tr>
+            <td class="prod-cell"><div class="prod-thumb sm"></div>Поролоновое покрытие ямы</td>
+            <td class="cat-mini">Покрытия</td><td class="mono">85 000 ₽</td><td class="mono">—</td>
+            <td><span class="dot-status ps-review"></span>На модерации</td><td class="link">Редактировать</td>
+          </tr>
+          <tr>
+            <td class="prod-cell"><div class="prod-thumb sm"></div>Батут-башня 4×4 м (мини)</td>
+            <td class="cat-mini">Батуты</td><td class="mono">195 000 ₽</td><td class="mono">—</td>
+            <td><span class="dot-status ps-rejected"></span>Отклонён — нет фото</td><td class="link">Исправить</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ TAB: REQUESTS ============ -->
+    <div class="tab-panel" id="tab-requests">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Заявки · 7</h2>
+          <div class="filter-tabs">
+            <span class="ftab active">Все 7</span>
+            <span class="ftab">Новые 3</span>
+            <span class="ftab">В работе 2</span>
+            <span class="ftab">Закрытые 2</span>
+          </div>
+        </div>
+        <table>
+          <tr><th>Дата</th><th>Покупатель</th><th>Категория</th><th>Сообщение</th><th>Статус</th></tr>
+          <tr><td class="mono">08.07</td><td>Игорь К., ИП «Весёлый двор»</td><td class="cat-mini">Батутная зона</td><td>Интересует батут 8×8 м с страховкой…</td><td><span class="status-tag status-new">Новая</span></td></tr>
+          <tr><td class="mono">08.07</td><td>Мария, «КидСпейс»</td><td class="cat-mini">Покрытия</td><td>Уточнить сроки поставки покрытия</td><td><span class="status-tag status-new">Новая</span></td></tr>
+          <tr><td class="mono">07.07</td><td>ООО «Радуга-Парк»</td><td class="cat-mini">Батутная зона</td><td>Нужен расчёт под помещение 400 м²</td><td><span class="status-tag status-progress">В работе</span></td></tr>
+          <tr><td class="mono">07.07</td><td>Тимур, «Джампи»</td><td class="cat-mini">Батуты</td><td>Запрос на комплект 2 батута + ограждение</td><td><span class="status-tag status-new">Новая</span></td></tr>
+          <tr><td class="mono">06.07</td><td>ИП Соколова</td><td class="cat-mini">Страховка</td><td>Согласование сроков монтажа сетки</td><td><span class="status-tag status-progress">В работе</span></td></tr>
+          <tr><td class="mono">05.07</td><td>Светлана П.</td><td class="cat-mini">Покрытия</td><td>Уточнить наличие поролоновых матов</td><td><span class="status-tag status-closed">Закрыта</span></td></tr>
+          <tr><td class="mono">03.07</td><td>Артём, «Джамп Сити»</td><td class="cat-mini">Страховочные системы</td><td>Запрос КП на сетку безопасности</td><td><span class="status-tag status-closed">Закрыта</span></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ TAB: ANALYTICS ============ -->
+    <div class="tab-panel" id="tab-analytics">
+      <div class="kpi-row">
+        <div class="kpi-card"><div class="k-label">Просмотры за 30 дней</div><div class="k-value">1 240</div><div class="k-delta up">+18% к прошлому</div></div>
+        <div class="kpi-card"><div class="k-label">Заявок за 30 дней</div><div class="k-value">19</div><div class="k-delta up">+4 к прошлому</div></div>
+        <div class="kpi-card"><div class="k-label">Конверсия в заявку</div><div class="k-value">12%</div><div class="k-delta warn">−2% к прошлому</div></div>
+        <div class="kpi-card"><div class="k-label">Ср. время ответа</div><div class="k-value">3.4 ч</div><div class="k-delta flat">без изменений</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Просмотры карточек · 14 дней</h2></div>
+        <div class="chart-wrap">
+          <div class="bars">
+            <div class="bar" style="height:38%"></div><div class="bar" style="height:52%"></div><div class="bar" style="height:44%"></div>
+            <div class="bar" style="height:61%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:70%"></div>
+            <div class="bar hi" style="height:88%"></div><div class="bar" style="height:55%"></div><div class="bar" style="height:63%"></div>
+            <div class="bar" style="height:58%"></div><div class="bar" style="height:72%"></div><div class="bar" style="height:66%"></div>
+            <div class="bar hi" style="height:91%"></div><div class="bar" style="height:80%"></div>
+          </div>
+          <div class="bar-labels"><span>25.06</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span><span>01.07</span><span>02</span><span>03</span><span>04</span><span>05</span><span>06</span><span>07</span><span>08</span></div>
+        </div>
+      </div>
+      <div class="panel section-gap">
+        <div class="panel-head"><h2>По категориям</h2></div>
+        <table>
+          <tr><th>Категория</th><th>Просмотры</th><th>Заявки</th><th>Конверсия</th></tr>
+          <tr><td>Батуты</td><td class="mono">840</td><td class="mono">12</td><td class="mono">1.4%</td></tr>
+          <tr><td>Покрытия</td><td class="mono">260</td><td class="mono">5</td><td class="mono">1.9%</td></tr>
+          <tr><td>Страховочные системы</td><td class="mono">140</td><td class="mono">2</td><td class="mono">1.4%</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ TAB: PROMOTION ============ -->
+    <div class="tab-panel" id="tab-promotion">
+      <div class="promo-tiers">
+        <div class="promo-tier">
+          <div class="pt-name">Топ категории</div>
+          <div class="pt-price">1 500 ₽<span>/нед. за товар</span></div>
+          <div class="pt-desc">Карточка поднимается в верх выдачи категории</div>
+        </div>
+        <div class="promo-tier">
+          <div class="pt-name">Баннер в категории</div>
+          <div class="pt-price">5 000 ₽<span>/мес.</span></div>
+          <div class="pt-desc">Баннер компании на странице категории</div>
+        </div>
+        <div class="promo-tier featured">
+          <div class="pt-name">Быстрый старт</div>
+          <div class="pt-price">3 900 ₽<span>/нед.</span></div>
+          <div class="pt-desc">Топ + выделение цветом + бейдж «Рекомендуем»</div>
+        </div>
+      </div>
+      <div class="panel section-gap">
+        <div class="panel-head"><h2>Мои товары</h2></div>
+        <table>
+          <tr><th>Товар</th><th>Просмотры</th><th>Продвижение</th><th></th></tr>
+          <tr><td>Батут прыжковый 8×8 м</td><td class="mono">214</td><td><span class="status-tag status-new">Активно · 4 дня</span></td><td class="link">Управлять</td></tr>
+          <tr><td>Страховочная сетка периметра</td><td class="mono">98</td><td><span class="status-tag status-closed">Не продвигается</span></td><td class="link">Продвинуть →</td></tr>
+          <tr><td>Батут надувной 6×6 м</td><td class="mono">156</td><td><span class="status-tag status-closed">Не продвигается</span></td><td class="link">Продвинуть →</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ TAB: PROFILE ============ -->
+    <div class="tab-panel" id="tab-profile">
+      <div class="panel">
+        <div class="panel-head"><h2>Данные компании</h2><span class="verified-chip" style="margin:0;"><svg viewBox="0 0 24 24" fill="none" stroke="#a35b12" stroke-width="2" style="width:11px;height:11px;"><path d="M20 6L9 17l-5-5"/></svg>Проверено · ИНН</span></div>
+        <table>
+          <tr><th>Поле</th><th>Значение</th><th></th></tr>
+          <tr><td class="cat-mini">Название</td><td>ООО «БатутМастер»</td><td class="link">🔒 ФНС</td></tr>
+          <tr><td class="cat-mini">ИНН</td><td class="mono">7456123456</td><td class="link">🔒 ФНС</td></tr>
+          <tr><td class="cat-mini">ОГРН</td><td class="mono">1157456789012</td><td class="link">🔒 ФНС</td></tr>
+          <tr><td class="cat-mini">Юр. адрес</td><td>г. Челябинск, ул. Свободы, 12</td><td class="link">🔒 ФНС</td></tr>
+          <tr><td class="cat-mini">Руководитель</td><td>Иванов И. И.</td><td class="link">🔒 ФНС</td></tr>
+        </table>
+      </div>
+      <div class="panel section-gap">
+        <div class="panel-head"><h2>Публичный профиль</h2></div>
+        <div style="padding:20px;">
+          <div class="field"><label>Описание компании</label><textarea rows="3">Производство батутного оборудования и страховочных систем полного цикла.</textarea></div>
+          <div class="field"><label>Контактный телефон</label><input type="text" value="+7 991 174-51-13"></div>
+          <div class="field"><label>Сайт</label><input type="text" value="batutmaster.ru"></div>
+          <button class="btn-add">Сохранить изменения</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: REVIEWS ============ -->
+    <div class="tab-panel" id="tab-reviews">
+      <div class="panel">
+        <div class="panel-head"><h2>Отзывы · рейтинг 4.8 из 12 отзывов</h2></div>
+        <div class="review-row">
+          <div class="rev-top"><span class="stars">★★★★★</span><span class="rev-author">Игорь К., «Весёлый двор»</span><span class="rev-date mono">02.07</span></div>
+          <p>Быстро согласовали монтаж, батут установили за 2 дня, всё по документам.</p>
+          <span class="link">Ответить</span>
+        </div>
+        <div class="review-row">
+          <div class="rev-top"><span class="stars">★★★★★</span><span class="rev-author">ООО «Радуга-Парк»</span><span class="rev-date mono">18.06</span></div>
+          <p>Хорошее качество страховочной сетки, сертификаты предоставили сразу.</p>
+          <span class="link">Ответить</span>
+        </div>
+        <div class="review-row">
+          <div class="rev-top"><span class="stars">★★★★☆</span><span class="rev-author">Тимур, «Джампи»</span><span class="rev-date mono">02.06</span></div>
+          <p>Задержка поставки на 3 дня, в остальном всё устроило.</p>
+          <span class="link">Ответить</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ TAB: FINANCE ============ -->
+    <div class="tab-panel" id="tab-finance">
+      <div class="panel">
+        <div class="panel-head"><h2>История операций</h2></div>
+        <table>
+          <tr><th>Дата</th><th>Операция</th><th>Сумма</th><th>Статус</th><th></th></tr>
+          <tr><td class="mono">01.06</td><td>Регистрация поставщика</td><td class="mono">5 000 ₽</td><td><span class="status-tag status-new">Оплачено</span></td><td class="link">Чек</td></tr>
+          <tr><td class="mono">15.06</td><td>Продвижение · Батут 8×8 м</td><td class="mono">1 500 ₽</td><td><span class="status-tag status-new">Оплачено</span></td><td class="link">Акт</td></tr>
+          <tr><td class="mono">29.06</td><td>Продвижение · Батут 8×8 м</td><td class="mono">1 500 ₽</td><td><span class="status-tag status-new">Оплачено</span></td><td class="link">Акт</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ TAB: SETTINGS ============ -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="panel">
+        <div class="panel-head"><h2>Уведомления</h2></div>
+        <div style="padding:6px 20px;">
+          <label class="toggle-row"><input type="checkbox" checked> Email при новой заявке</label>
+          <label class="toggle-row"><input type="checkbox" checked> Email при новом отзыве</label>
+          <label class="toggle-row"><input type="checkbox"> SMS при новой заявке</label>
+        </div>
+      </div>
+      <div class="panel section-gap">
+        <div class="panel-head"><h2>Пользователи кабинета</h2><span class="link">+ Пригласить сотрудника</span></div>
+        <table>
+          <tr><th>Имя</th><th>Роль</th><th>Email</th></tr>
+          <tr><td>Иванов И. И.</td><td class="cat-mini">Владелец</td><td class="mono">ivanov@batutmaster.ru</td></tr>
+          <tr><td>Петрова А. С.</td><td class="cat-mini">Менеджер заявок</td><td class="mono">petrova@batutmaster.ru</td></tr>
+        </table>
+      </div>
+      <div class="panel section-gap" style="border-color:#f0c9bd;">
+        <div class="panel-head"><h2 style="color:var(--alert);">Опасная зона</h2></div>
+        <div style="padding:16px 20px;"><span class="link" style="color:var(--alert);">Приостановить размещение компании</span></div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+  document.querySelectorAll('.side-item[data-tab]').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.side-item[data-tab]').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + item.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.ftab').forEach(f => {
+    f.addEventListener('click', () => {
+      f.parentElement.querySelectorAll('.ftab').forEach(x => x.classList.remove('active'));
+      f.classList.add('active');
+    });
+  });
+</script>
+</body>
+</html>
