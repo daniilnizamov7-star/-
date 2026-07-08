@@ -80,14 +80,27 @@
   }
   .zone-item{
     display:flex; align-items:center; gap:10px; padding:11px 14px; border-bottom:1px solid var(--line);
-    cursor:grab; user-select:none;
+    cursor:pointer; user-select:none;
   }
   .zone-item:last-child{ border-bottom:none; }
-  .zone-item:active{ cursor:grabbing; }
   .zone-item svg{ width:20px; height:20px; stroke:var(--ink); flex-shrink:0; }
-  .zi-text{ min-width:0; }
+  .zi-text{ min-width:0; flex:1; }
   .zi-name{ font-size:12px; font-weight:600; color:var(--steel); line-height:1.3; }
   .zi-meta{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--graphite); margin-top:1px; }
+  .zi-chevron{ font-size:10px; color:var(--graphite); transition:transform .15s ease; flex-shrink:0; }
+  .zone-item.open .zi-chevron{ transform:rotate(90deg); }
+
+  .product-list{ display:none; background:var(--panel); }
+  .product-list.open{ display:block; }
+  .product-row{
+    display:flex; flex-direction:column; gap:1px; padding:8px 14px 8px 40px;
+    border-bottom:1px solid #dde3ec; cursor:grab; background:#fff;
+  }
+  .product-row:last-child{ border-bottom:none; }
+  .product-row:active{ cursor:grabbing; }
+  .pr-name{ font-size:11.5px; font-weight:600; color:var(--steel); }
+  .pr-meta{ font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--graphite); display:flex; justify-content:space-between; }
+  .pr-seller{ color:var(--cyan); }
 
   .palette-hint{
     padding:12px 14px; font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--graphite);
@@ -117,6 +130,7 @@
     cursor:pointer; padding:0 2px; flex-shrink:0;
   }
   .zb-dim{ font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--graphite); margin-top:2px; }
+  .zb-price{ font-family:'IBM Plex Mono', monospace; font-size:9px; color:var(--graphite); margin-top:1px; }
 
   /* summary panel */
   .summary{ background:#fff; border:1px solid var(--line); }
@@ -136,7 +150,8 @@
   .sum-budget-val{ font-family:'Space Grotesk', sans-serif; font-size:22px; font-weight:700; color:var(--amber); margin-top:4px; }
 
   .placed-list{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; max-height:180px; overflow-y:auto; }
-  .placed-item{ display:flex; justify-content:space-between; font-size:11.5px; padding:5px 0; color:var(--steel); }
+  .placed-item{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; font-size:11.5px; padding:7px 0; color:var(--steel); border-bottom:1px solid var(--line); }
+  .placed-item:last-child{ border-bottom:none; }
   .placed-item .pi-price{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--graphite); }
   .placed-empty{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:#9aa5b5; padding:8px 0; }
 
@@ -169,7 +184,7 @@
 <div class="page-head">
   <span class="eyebrow">Интерактивный инструмент</span>
   <h1>Конструктор парка</h1>
-  <p>Перетащите зоны на план помещения — площадь и бюджет считаются автоматически, по тем же диапазонам цен, что и в каталоге ПаркСнаб.</p>
+  <p>Откройте категорию слева — увидите реальные товары поставщиков с размерами и ценой. Перетащите нужный на план: площадь и бюджет считаются автоматически.</p>
 </div>
 
 <div class="toolbar">
@@ -237,51 +252,107 @@
 </div>
 
 <script>
-  const ZONES = [
-    {id:'batut', name:'Батутная зона', w:12, h:10, color:'#F2A93B', pmin:800000, pmax:2200000,
+  const CATEGORIES = [
+    {id:'batut', name:'Батуты', color:'#F2A93B',
       icon:'<circle cx="12" cy="12" r="9"/><path d="M5 12h14M12 5v14"/>'},
-    {id:'lasertag', name:'Лазертаг', w:15, h:12, color:'#3E92CC', pmin:600000, pmax:1500000,
+    {id:'lasertag', name:'Лазертаг', color:'#3E92CC',
       icon:'<rect x="4" y="8" width="16" height="10" rx="1"/><path d="M9 8V6a3 3 0 016 0v2"/>'},
-    {id:'bowling', name:'Боулинг', w:10, h:6, color:'#1B3A5C', pmin:1200000, pmax:2000000,
+    {id:'bowling', name:'Боулинг', color:'#1B3A5C',
       icon:'<path d="M12 2v6M9 6l3-4 3 4"/><circle cx="12" cy="16" r="6"/>'},
-    {id:'attractions', name:'Аттракционы', w:10, h:8, color:'#E4572E', pmin:400000, pmax:1000000,
+    {id:'attractions', name:'Аттракционы', color:'#E4572E',
       icon:'<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/>'},
-    {id:'inflatable', name:'Надувные конструкции', w:8, h:6, color:'#2E9E5B', pmin:250000, pmax:600000,
+    {id:'inflatable', name:'Надувные конструкции', color:'#2E9E5B',
       icon:'<path d="M4 18c2-4 4-6 8-6s6 2 8 6"/><circle cx="12" cy="7" r="3"/>'},
-    {id:'gameroom', name:'Игровые комнаты', w:10, h:8, color:'#4A4F58', pmin:500000, pmax:1200000,
+    {id:'gameroom', name:'Игровые комнаты', color:'#4A4F58',
       icon:'<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/>'},
-    {id:'robots', name:'Роботы / интерактив', w:6, h:5, color:'#3E92CC', pmin:300000, pmax:900000,
+    {id:'robots', name:'Роботы / интерактив', color:'#3E92CC',
       icon:'<rect x="5" y="4" width="14" height="16" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M9 16h6"/>'},
-    {id:'cafe', name:'Зона кафе', w:8, h:6, color:'#F2A93B', pmin:200000, pmax:500000,
+    {id:'cafe', name:'Зона кафе', color:'#F2A93B',
       icon:'<circle cx="8" cy="14" r="3"/><circle cx="16" cy="14" r="3"/><path d="M8 11V7M16 11V7"/>'},
-    {id:'reception', name:'Ресепшн и мебель', w:4, h:3, color:'#1B3A5C', pmin:150000, pmax:350000,
+    {id:'reception', name:'Ресепшн и мебель', color:'#1B3A5C',
       icon:'<rect x="4" y="12" width="16" height="8"/><path d="M8 12V8a4 4 0 018 0v4"/>'}
   ];
+
+  // Демо-товары реальных поставщиков по категориям — в проде тянется из каталога Supabase
+  const PRODUCTS = {
+    batut: [
+      {name:'Батут прыжковый 6×6 м', seller:'БатутМастер', w:6, h:6, price:410000},
+      {name:'Батут прыжковый 8×8 м', seller:'БатутМастер', w:8, h:8, price:640000},
+      {name:'Батут-башня 10×10 м', seller:'Джамп Сити Про', w:10, h:10, price:980000}
+    ],
+    lasertag: [
+      {name:'Арена лазертаг мини 12×10 м', seller:'Лазертаг-Шоп', w:12, h:10, price:720000},
+      {name:'Арена лазертаг стандарт 15×12 м', seller:'Лазертаг-Шоп', w:15, h:12, price:1150000}
+    ],
+    bowling: [
+      {name:'Дорожка боулинг · 1 шт', seller:'ЭкспертБоулинг', w:6, h:20, price:1450000},
+      {name:'Дорожки боулинг · 2 шт', seller:'ЭкспертБоулинг', w:10, h:20, price:2600000}
+    ],
+    attractions: [
+      {name:'Электромобили детские, комплект', seller:'АвираПарк', w:8, h:6, price:520000},
+      {name:'Карусель малая', seller:'Атракцион59', w:10, h:8, price:890000}
+    ],
+    inflatable: [
+      {name:'Батут надувной 6×6 м', seller:'АирМир', w:6, h:6, price:310000},
+      {name:'Полоса препятствий 10×4 м', seller:'АирМир', w:10, h:4, price:540000}
+    ],
+    gameroom: [
+      {name:'Сухой бассейн + лабиринт', seller:'Игро-Сервис', w:10, h:8, price:620000},
+      {name:'Мягкий модуль-лабиринт', seller:'Игро-Сервис', w:8, h:6, price:480000}
+    ],
+    robots: [
+      {name:'Интерактивная панель', seller:'РобоТейл', w:3, h:2, price:240000},
+      {name:'Робот-компаньон', seller:'РобоТейл', w:4, h:3, price:410000}
+    ],
+    cafe: [
+      {name:'Зона фудкорта', seller:'Мебель ОДА', w:8, h:6, price:320000},
+      {name:'Кафе-уголок', seller:'Мебель ОДА', w:6, h:4, price:210000}
+    ],
+    reception: [
+      {name:'Ресепшн-стойка + зона ожидания', seller:'Мебель ОДА', w:4, h:3, price:180000}
+    ]
+  };
 
   const PLOTS = { '20x15':{w:20,h:15}, '30x20':{w:30,h:20}, '40x30':{w:40,h:30} };
   let currentPlot = {w:30,h:20};
   let pxPerMeter = 0;
-  let dragData = null;
 
   const palette = document.getElementById('palette');
-  ZONES.forEach(z=>{
-    const el = document.createElement('div');
-    el.className='zone-item';
-    el.draggable = true;
-    el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" style="stroke:${z.color}">${z.icon}</svg>
-      <div class="zi-text"><div class="zi-name">${z.name}</div><div class="zi-meta">${z.w}×${z.h} м · ${fmtShort(z.pmin)}–${fmtShort(z.pmax)}</div></div>`;
-    el.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('text/plain', z.id);
+  CATEGORIES.forEach(cat=>{
+    const header = document.createElement('div');
+    header.className='zone-item';
+    header.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" style="stroke:${cat.color}">${cat.icon}</svg>
+      <div class="zi-text"><div class="zi-name">${cat.name}</div><div class="zi-meta">${PRODUCTS[cat.id].length} товара у поставщиков</div></div>
+      <span class="zi-chevron">▸</span>`;
+
+    const list = document.createElement('div');
+    list.className='product-list';
+    PRODUCTS[cat.id].forEach(p=>{
+      const row = document.createElement('div');
+      row.className='product-row';
+      row.draggable = true;
+      row.innerHTML = `<div class="pr-name">${p.name}</div><div class="pr-meta"><span class="pr-seller">${p.seller}</span><span>${p.w}×${p.h} м · ${fmtShort(p.price)}</span></div>`;
+      row.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', JSON.stringify({...p, catId:cat.id, color:cat.color, icon:cat.icon}));
+      });
+      list.appendChild(row);
     });
-    palette.appendChild(el);
+
+    header.addEventListener('click', ()=>{
+      header.classList.toggle('open');
+      list.classList.toggle('open');
+    });
+
+    palette.appendChild(header);
+    palette.appendChild(list);
   });
   const hint = document.createElement('div');
   hint.className='palette-hint';
-  hint.textContent = 'Перетащите зону на план справа. Размещённые блоки можно двигать мышью.';
+  hint.textContent = 'Нажмите на категорию — откроются реальные товары поставщиков. Перетащите нужный на план.';
   palette.appendChild(hint);
 
   function fmtShort(n){
-    return (n/1000000).toFixed(1).replace('.0','') + ' млн';
+    return (n/1000000).toFixed(2).replace(/0$/,'').replace(/\.$/,'') + ' млн';
   }
 
   const canvas = document.getElementById('plan-canvas');
@@ -371,19 +442,19 @@
   overlay.addEventListener('dragover', e=> e.preventDefault());
   overlay.addEventListener('drop', e=>{
     e.preventDefault();
-    const zoneId = e.dataTransfer.getData('text/plain');
-    const zone = ZONES.find(z=>z.id===zoneId);
-    if(!zone) return;
+    let product;
+    try{ product = JSON.parse(e.dataTransfer.getData('text/plain')); } catch(err){ return; }
+    if(!product) return;
     const rect = overlay.getBoundingClientRect();
-    let x = e.clientX - rect.left - (zone.w*pxPerMeter)/2;
-    let y = e.clientY - rect.top - (zone.h*pxPerMeter)/2;
-    placeZone(zone, x, y);
+    let x = e.clientX - rect.left - (product.w*pxPerMeter)/2;
+    let y = e.clientY - rect.top - (product.h*pxPerMeter)/2;
+    placeProduct(product, x, y);
   });
 
   function snap(v){ const s = pxPerMeter/2; return Math.round(v/s)*s; }
 
-  function placeZone(zone, x, y){
-    const wPx = zone.w*pxPerMeter, hPx = zone.h*pxPerMeter;
+  function placeProduct(product, x, y){
+    const wPx = product.w*pxPerMeter, hPx = product.h*pxPerMeter;
     x = Math.max(0, Math.min(x, canvas.width - wPx));
     y = Math.max(0, Math.min(y, canvas.height - hPx));
     x = snap(x); y = snap(y);
@@ -392,12 +463,12 @@
     block.className = 'zone-block';
     block.style.left = x+'px'; block.style.top = y+'px';
     block.style.width = wPx+'px'; block.style.height = hPx+'px';
-    block.style.borderColor = zone.color;
-    block.dataset.pmin = zone.pmin;
-    block.dataset.pmax = zone.pmax;
-    block.dataset.area = zone.w*zone.h;
-    block.dataset.name = zone.name;
-    block.innerHTML = `<div class="zb-head"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="stroke:${zone.color}">${zone.icon}</svg><span class="zb-name">${zone.name}</span><span class="zb-remove">×</span></div><div class="zb-dim">${zone.w}×${zone.h} м</div>`;
+    block.style.borderColor = product.color;
+    block.dataset.price = product.price;
+    block.dataset.area = product.w*product.h;
+    block.dataset.name = product.name;
+    block.dataset.seller = product.seller;
+    block.innerHTML = `<div class="zb-head"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" style="stroke:${product.color}">${product.icon}</svg><span class="zb-name">${product.name}</span><span class="zb-remove">×</span></div><div class="zb-dim">${product.w}×${product.h} м</div><div class="zb-price">${product.seller} · ${fmtShort(product.price)}</div>`;
 
     block.querySelector('.zb-remove').addEventListener('click', (ev)=>{
       ev.stopPropagation();
@@ -450,7 +521,7 @@
   function recalc(){
     const blocks = overlay.querySelectorAll('.zone-block');
     const totalPlotArea = currentPlot.w * currentPlot.h;
-    let usedArea = 0, pmin = 0, pmax = 0;
+    let usedArea = 0, total = 0;
     const list = document.getElementById('placed-list');
     list.innerHTML = '';
     if(blocks.length===0){
@@ -458,11 +529,10 @@
     }
     blocks.forEach(b=>{
       usedArea += parseFloat(b.dataset.area);
-      pmin += parseInt(b.dataset.pmin);
-      pmax += parseInt(b.dataset.pmax);
+      total += parseInt(b.dataset.price);
       const row = document.createElement('div');
       row.className = 'placed-item';
-      row.innerHTML = `<span>${b.dataset.name}</span><span class="pi-price">${fmtShort(parseInt(b.dataset.pmin))}–${fmtShort(parseInt(b.dataset.pmax))}</span>`;
+      row.innerHTML = `<span>${b.dataset.name}<br><span style="color:var(--cyan); font-family:'IBM Plex Mono',monospace; font-size:9.5px;">${b.dataset.seller}</span></span><span class="pi-price">${fmtShort(parseInt(b.dataset.price))}</span>`;
       list.appendChild(row);
     });
 
@@ -481,7 +551,7 @@
       note.style.color = '';
     }
 
-    document.getElementById('budget-val').textContent = blocks.length ? (fmtShort(pmin)+' – '+fmtShort(pmax)+' ₽') : '0 ₽';
+    document.getElementById('budget-val').textContent = blocks.length ? (fmtShort(total)+' ₽') : '0 ₽';
   }
 
   document.getElementById('plan-cta').addEventListener('click', function(){
